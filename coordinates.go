@@ -13,7 +13,7 @@ type Coordinates struct {
     Type string
 }
 
-func MakeCoordinates(lat Latitude, long Longitude) *Coordinates {
+func NewCoordinates(lat Latitude, long Longitude) *Coordinates {
     return &Coordinates{lat, long, "Point"}
 }
 

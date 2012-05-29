@@ -101,7 +101,7 @@ func (s *S) TestDecodeNoCoordinates(c *C) {
 
 func (s *S) TestEncodeCoordinates(c *C) {
     var tweet ts.Tweet
-    tweet.Coordinates = ts.MakeCoordinates(ts.Latitude(10.1), ts.Longitude(-12.5))
+    tweet.Coordinates = ts.NewCoordinates(ts.Latitude(10.1), ts.Longitude(-12.5))
     data := decodeJson(encodeTweet(tweet))
     coords := data["coordinates"].(map[string]interface{})
     points := coords["coordinates"].([]interface{})
