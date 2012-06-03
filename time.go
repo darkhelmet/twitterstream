@@ -10,7 +10,7 @@ const (
 )
 
 type Time struct {
-    Time time.Time
+    time.Time
 }
 
 func (t Time) MarshalJSON() ([]byte, error) {
@@ -25,5 +25,5 @@ func (t *Time) UnmarshalJSON(data []byte) error {
         return err
     }
     t.Time, err = time.Parse(TimeFormat, s)
-    return err
+    return nil
 }
