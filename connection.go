@@ -20,7 +20,10 @@ type Connection struct {
 }
 
 func (c *Connection) Close() error {
+    // Have to close the raw connection, since closing the response body reader
+    // will make Go try to read the request, which goes on forever.
     if err := c.httpConn.Close(); err != nil {
+        c.closer.Close()
         return err
     }
     return c.closer.Close()

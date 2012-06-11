@@ -1,9 +1,7 @@
 package twitterstream
 
 import (
-    "compress/gzip"
     "fmt"
-    "io"
     "io/ioutil"
     "net/http"
     "net/url"
@@ -19,6 +17,10 @@ type Client struct {
     Password string
 }
 
+func makeUrl(action, args string) string {
+    return fmt.Sprintf("%s?%s=%s", FilterUrl, url.QueryEscape(action), url.QueryEscape(args))
+}
+
 func NewClient(username, password string) *Client {
     return &Client{
         Username: username,
@@ -27,36 +29,53 @@ func NewClient(username, password string) *Client {
 }
 
 func (c *Client) Track(keywords ...string) (*Connection, error) {
-    uri := fmt.Sprintf("%s?track=%s", FilterUrl, url.QueryEscape(strings.Join(keywords, ",")))
+    uri := makeUrl("track", strings.Join(keywords, ","))
     req, err := http.NewRequest("POST", uri, nil)
     if err != nil {
-        return nil, fmt.Errorf("twitterstream: Creating the request failed: %s", err)
+        return nil, fmt.Errorf("twitterstream: Creating track request failed: %s", err)
     }
 
     req.SetBasicAuth(c.Username, c.Password)
-    req.Header.Add("Accept-Encoding", "gzip")
 
     conn := newConnection()
     resp, err := conn.httpClient.Do(req)
     if err != nil {
-        return nil, fmt.Errorf("twitterstream: Making the request failed: %s", err)
+        return nil, fmt.Errorf("twitterstream: Making track request failed: %s", err)
     }
 
     if resp.StatusCode != 200 {
         body, _ := ioutil.ReadAll(resp.Body)
         resp.Body.Close()
-        return nil, fmt.Errorf("twitterstream: Request failed (%d): %s", resp.StatusCode, body)
+        return nil, fmt.Errorf("twitterstream: Track request failed (%d): %s", resp.StatusCode, body)
     }
 
-    var rc io.ReadCloser = resp.Body
-    if resp.Header.Get("Content-Encoding") == "gzip" {
-        rc, err = gzip.NewReader(rc)
-        if err != nil {
-            return nil, err
-        }
+    conn.setup(resp.Body)
+
+    return conn, nil
+}
+
+func (c *Client) Follow(userIds ...string) (*Connection, error) {
+    uri := makeUrl("follow", strings.Join(userIds, ","))
+    req, err := http.NewRequest("POST", uri, nil)
+    if err != nil {
+        return nil, fmt.Errorf("twitterstream: Creating follow request failed: %s", err)
     }
 
-    conn.setup(rc)
+    req.SetBasicAuth(c.Username, c.Password)
+
+    conn := newConnection()
+    resp, err := conn.httpClient.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("twitterstream: Making follow request failed: %s", err)
+    }
+
+    if resp.StatusCode != 200 {
+        body, _ := ioutil.ReadAll(resp.Body)
+        resp.Body.Close()
+        return nil, fmt.Errorf("twitterstream: Track follow failed (%d): %s", resp.StatusCode, body)
+    }
+
+    conn.setup(resp.Body)
 
     return conn, nil
 }
