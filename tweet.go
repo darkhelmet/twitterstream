@@ -12,10 +12,10 @@ type Size struct {
 }
 
 type Sizes struct {
-    L   Size `json:"large"`
-    M   Size `json:"medium"`
-    S   Size `json:"small"`
-    T   Size `json:"thumb"`
+    Large  Size `json:"large"`
+    Medium Size `json:"medium"`
+    Small  Size `json:"small"`
+    Thumb  Size `json:"thumb"`
 }
 
 type Medium struct {
@@ -25,7 +25,7 @@ type Medium struct {
     SecureMediaUrl string    `json:"media_url_https"`
     Url            string    `json:"url"`
     DisplayUrl     string    `json:"display_url"`
-    ExpandedUrl    string    `json:"expanded_url"`
+    ExpandedUrl    *string   `json:"expanded_url"`
     Sizes          Sizes     `json:"sizes"`
     Indices        IndexPair `json:"indices"`
 }
@@ -41,15 +41,15 @@ type Mention struct {
 type Url struct {
     Url         string    `json:"url"`
     DisplayUrl  string    `json:"display_url"`
-    ExpandedUrl string    `json:"expanded_url"`
+    ExpandedUrl *string   `json:"expanded_url"`
     Indices     IndexPair `json:"indices"`
 }
 
 type Entities struct {
-    Hashtags []Hashtag
-    Media    []Medium
-    Mentions []Mention
-    Urls     []Url
+    Hashtags []Hashtag `json:"hashtags"`
+    Media    []Medium  `json:"media"`
+    Mentions []Mention `json:"user_mentions"`
+    Urls     []Url     `json:"urls"`
 }
 
 type Contributor struct {
@@ -73,6 +73,9 @@ type Tweet struct {
 
     // Time when this Tweet was created.
     CreatedAt Time `json:"created_at"`
+
+    // Entities which have been parsed out of the text of the Tweet.
+    Entities Entities `json:"entities"`
 
     // Perspectival. Indicates whether this Tweet has been favorited by the authenticating user.
     Favorited *bool `json:"favorited"`
@@ -118,4 +121,7 @@ type Tweet struct {
 
     // When present, indicates whether the content being withheld is the "status" or a "user." See New Withheld Content Fields in API Responses.
     WithheldScope string `json:"withheld_scope"`
+
+    // The user who posted this Tweet.
+    User User `json:"user"`
 }

@@ -1,9 +1,77 @@
 package twitterstream_test
 
 import (
+    "encoding/json"
     ts "github.com/darkhelmet/twitterstream"
+    . "launchpad.net/gocheck"
+    "reflect"
+    "testing"
     "time"
 )
+
+type StructTest struct {
+    Struct       interface{}
+    JsonField    string
+    JsonValues   interface{}
+    StructField  string
+    StructValues interface{}
+}
+
+func Test(t *testing.T) { TestingT(t) }
+
+type S struct{}
+
+var _ = Suite(&S{})
+
+func (s *S) TestEverything(c *C) {
+    for _, test := range tableTests {
+        jsonValues := reflect.ValueOf(test.JsonValues)
+        structValues := reflect.ValueOf(test.StructValues)
+        st := reflect.TypeOf(test.Struct)
+
+        count := jsonValues.Len()
+        if count != structValues.Len() {
+            c.Errorf("must use same size slices for value pairs. %d != %d, %#v vs %#v", count, structValues.Len(), jsonValues.Interface(), structValues.Interface()) //, test.JsonValues, test.StructValues)
+        }
+
+        c.Logf("Encoding %s of %T", test.StructField, test.Struct)
+        for index := 0; index < count; index += 1 {
+            s := reflect.New(st).Elem()
+            field := s.FieldByName(test.StructField)
+            value := structValues.Index(index)
+            if !field.CanSet() {
+                c.Fatalf("Can't set %#v but should be able to", test.StructField)
+            }
+            field.Set(value)
+            data := decodeJson(marshal(s.Interface()))
+            expected := jsonValues.Index(index)
+            if expected.Kind() == reflect.Ptr && expected.IsNil() {
+                c.Assert(data[test.JsonField], IsNil)
+            } else {
+                c.Assert(data[test.JsonField], DeepEquals, convert(expected))
+            }
+        }
+
+        c.Logf("Decoding %s of %T", test.StructField, test.Struct)
+        for index := 0; index < count; index += 1 {
+            j := make(map[string]interface{})
+            value := reflect.ValueOf(&j).Elem()
+            valueToSet := jsonValues.Index(index)
+            key := reflect.ValueOf(test.JsonField)
+            value.SetMapIndex(key, valueToSet)
+            expected := structValues.Index(index)
+            s := reflect.New(st)
+            decode(s.Interface(), makeJson(j))
+            s = s.Elem()
+            field := s.FieldByName(test.StructField)
+            if expected.Kind() == reflect.Ptr && expected.IsNil() {
+                c.Assert(field.Interface(), IsNil)
+            } else {
+                c.Assert(convert(field), DeepEquals, convert(expected))
+            }
+        }
+    }
+}
 
 func float64s(is ...interface{}) []interface{} {
     values := make([]interface{}, 0, len(is))
@@ -21,6 +89,10 @@ func float64s(is ...interface{}) []interface{} {
 }
 
 func booladdr(value bool) *bool {
+    return &value
+}
+
+func intaddr(value int) *int {
     return &value
 }
 
