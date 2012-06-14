@@ -6,15 +6,18 @@ import (
     "net/http"
     "net/url"
     "strings"
+    "time"
 )
 
 const (
-    FilterUrl = "https://stream.twitter.com/1/statuses/filter.json"
+    FilterUrl      = "https://stream.twitter.com/1/statuses/filter.json"
+    DefaultTimeout = 2 * time.Minute
 )
 
 type Client struct {
     Username string
     Password string
+    Timeout  time.Duration
 }
 
 func makeUrl(action, args string) string {
@@ -22,9 +25,14 @@ func makeUrl(action, args string) string {
 }
 
 func NewClient(username, password string) *Client {
+    return NewClientTimeout(username, password, DefaultTimeout)
+}
+
+func NewClientTimeout(username, password string, timeout time.Duration) *Client {
     return &Client{
         Username: username,
         Password: password,
+        Timeout:  timeout,
     }
 }
 
@@ -37,8 +45,8 @@ func (c *Client) Track(keywords ...string) (*Connection, error) {
 
     req.SetBasicAuth(c.Username, c.Password)
 
-    conn := newConnection()
-    resp, err := conn.httpClient.Do(req)
+    conn := newConnection(c.Timeout)
+    resp, err := conn.client.Do(req)
     if err != nil {
         return nil, fmt.Errorf("twitterstream: Making track request failed: %s", err)
     }
@@ -63,8 +71,8 @@ func (c *Client) Follow(userIds ...string) (*Connection, error) {
 
     req.SetBasicAuth(c.Username, c.Password)
 
-    conn := newConnection()
-    resp, err := conn.httpClient.Do(req)
+    conn := newConnection(c.Timeout)
+    resp, err := conn.client.Do(req)
     if err != nil {
         return nil, fmt.Errorf("twitterstream: Making follow request failed: %s", err)
     }

@@ -2,7 +2,6 @@ package twitterstream
 
 import (
     "bufio"
-    // "os"
     "encoding/json"
     "io"
     "net"
@@ -13,16 +12,17 @@ import (
 const DialTimeout = 5 * time.Second
 
 type Connection struct {
-    decoder    *json.Decoder
-    httpConn   net.Conn
-    httpClient *http.Client
-    closer     io.Closer
+    decoder *json.Decoder
+    conn    net.Conn
+    client  *http.Client
+    closer  io.Closer
+    timeout time.Duration
 }
 
 func (c *Connection) Close() error {
     // Have to close the raw connection, since closing the response body reader
     // will make Go try to read the request, which goes on forever.
-    if err := c.httpConn.Close(); err != nil {
+    if err := c.conn.Close(); err != nil {
         c.closer.Close()
         return err
     }
@@ -31,6 +31,7 @@ func (c *Connection) Close() error {
 
 func (c *Connection) Next() (*Tweet, error) {
     var tweet Tweet
+    c.conn.SetReadDeadline(time.Now().Add(c.timeout))
     if err := c.decoder.Decode(&tweet); err != nil {
         return nil, err
     }
@@ -38,29 +39,26 @@ func (c *Connection) Next() (*Tweet, error) {
 }
 
 func (c *Connection) setup(rc io.ReadCloser) {
-    // rd, wr := io.Pipe()
-    // mwr := io.MultiWriter(os.Stdout, wr)
     c.closer = rc
     c.decoder = json.NewDecoder(bufio.NewReader(rc))
-    // go io.Copy(mwr, rc)
 }
 
-func newConnection() *Connection {
-    conn := new(Connection)
+func newConnection(timeout time.Duration) *Connection {
+    conn := &Connection{timeout: timeout}
     dialer := func(netw, addr string) (net.Conn, error) {
         netc, err := net.DialTimeout(netw, addr, DialTimeout)
         if err != nil {
             return nil, err
         }
-        conn.httpConn = netc
+        conn.conn = netc
         return netc, nil
     }
 
-    httpClient := &http.Client{
+    conn.client = &http.Client{
         Transport: &http.Transport{
             Dial: dialer,
         },
     }
-    conn.httpClient = httpClient
+
     return conn
 }
