@@ -1,5 +1,4 @@
-twitterstream
-=============
+# twitterstream
 
 Twitter streaming API for Go. [Documentation](http://go.pkgdoc.org/github.com/darkhelmet/twitterstream)
 
@@ -34,3 +33,7 @@ Twitter streaming API for Go. [Documentation](http://go.pkgdoc.org/github.com/da
             decode(conn)
         }
     }
+
+# License
+
+Copyright © 2012 Daniel Huckstep. See LICENSE for details.
