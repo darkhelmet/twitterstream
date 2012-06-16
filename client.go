@@ -11,7 +11,7 @@ import (
 
 const (
     FilterUrl      = "https://stream.twitter.com/1/statuses/filter.json"
-    DefaultTimeout = 2 * time.Minute
+    DefaultTimeout = 1 * time.Minute
 )
 
 type Client struct {
