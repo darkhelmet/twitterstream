@@ -1,7 +1,6 @@
 package twitterstream
 
 import (
-    "bufio"
     "encoding/json"
     "io"
     "net"
@@ -40,7 +39,7 @@ func (c *Connection) Next() (*Tweet, error) {
 
 func (c *Connection) setup(rc io.ReadCloser) {
     c.closer = rc
-    c.decoder = json.NewDecoder(bufio.NewReader(rc))
+    c.decoder = json.NewDecoder(rc)
 }
 
 func newConnection(timeout time.Duration) *Connection {
