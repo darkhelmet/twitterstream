@@ -43,36 +43,18 @@ func NewClientTimeout(consumerKey, consumerSecret, accessToken, accessSecret str
 
 func (c *Client) Track(keywords ...string) (*Connection, error) {
     form := url.Values{"track": {strings.Join(keywords, ",")}}
-    req, err := http.NewRequest("POST", FilterUrl, strings.NewReader(form.Encode()))
-    if err != nil {
-        return nil, fmt.Errorf("twitterstream: Creating track request failed: %s", err)
-    }
-
-    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-    req.Header.Set("Authorization", c.Oauth.AuthorizationHeader(c.Credentials, "POST", req.URL, form))
-
-    conn := newConnection(c.Timeout)
-    resp, err := conn.client.Do(req)
-    if err != nil {
-        return nil, fmt.Errorf("twitterstream: Making track request failed: %s", err)
-    }
-
-    if resp.StatusCode != 200 {
-        body, _ := ioutil.ReadAll(resp.Body)
-        resp.Body.Close()
-        return nil, fmt.Errorf("twitterstream: track failed (%d): %s", resp.StatusCode, body)
-    }
-
-    conn.setup(resp.Body)
-
-    return conn, nil
+    return c.filter(form)
 }
 
 func (c *Client) Follow(userIds ...string) (*Connection, error) {
     form := url.Values{"follow": {strings.Join(userIds, ",")}}
+    return c.filter(form)
+}
+
+func (c *Client) filter(form url.Values) (*Connection, error) {
     req, err := http.NewRequest("POST", FilterUrl, strings.NewReader(form.Encode()))
     if err != nil {
-        return nil, fmt.Errorf("twitterstream: Creating follow request failed: %s", err)
+        return nil, fmt.Errorf("twitterstream: creating filter request failed: %s", err)
     }
 
     req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -81,13 +63,13 @@ func (c *Client) Follow(userIds ...string) (*Connection, error) {
     conn := newConnection(c.Timeout)
     resp, err := conn.client.Do(req)
     if err != nil {
-        return nil, fmt.Errorf("twitterstream: Making follow request failed: %s", err)
+        return nil, fmt.Errorf("twitterstream: making filter request failed: %s", err)
     }
 
     if resp.StatusCode != 200 {
         body, _ := ioutil.ReadAll(resp.Body)
         resp.Body.Close()
-        return nil, fmt.Errorf("twitterstream: follow failed (%d): %s", resp.StatusCode, body)
+        return nil, fmt.Errorf("twitterstream: filter failed (%d): %s", resp.StatusCode, body)
     }
 
     conn.setup(resp.Body)
