@@ -21,6 +21,7 @@ type Sizes struct {
 type Medium struct {
     Id             int64     `json:"id"`
     IdStr          string    `json:"id_str"`
+    Type           string    `json:"type"`
     MediaUrl       string    `json:"media_url"`
     SecureMediaUrl string    `json:"media_url_https"`
     Url            string    `json:"url"`
