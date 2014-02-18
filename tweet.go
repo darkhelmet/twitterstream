@@ -108,6 +108,9 @@ type Tweet struct {
     // Perspectival. Indicates whether this Tweet has been retweeted by the authenticating user.
     Retweeted bool `json:"retweeted"`
 
+    // If Retweet the original Tweet can be found here.
+    RetweetedStatus *Tweet `json:"retweeted_status"`
+
     // Utility used to post the Tweet, as an HTML-formatted string. Tweets from the Twitter website have a source value of web.
     Source string `json:"source"`
 
