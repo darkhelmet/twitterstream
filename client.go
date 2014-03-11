@@ -52,7 +52,7 @@ func (c *Client) Follow(userIds ...string) (*Connection, error) {
 }
 
 func (c *Client) Locations(p1 Point, p2 Point) (*Connection, error) {
-    form := url.Values{"locations": {fmt.Sprintf("%f,%f,%f,%f",p1.Long,p1.Lat,p2.Long,p2.Lat)}}
+    form := url.Values{"locations": {fmt.Sprintf("%f,%f,%f,%f", p1.Long, p1.Lat, p2.Long, p2.Lat)}}
     return c.filter(form)
 }
 
