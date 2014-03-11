@@ -51,6 +51,11 @@ func (c *Client) Follow(userIds ...string) (*Connection, error) {
     return c.filter(form)
 }
 
+func (c *Client) Locations(p1 Point, p2 Point) (*Connection, error) {
+    form := url.Values{"locations": {fmt.Sprintf("%f,%f,%f,%f",p1.Long,p1.Lat,p2.Long,p2.Lat)}}
+    return c.filter(form)
+}
+
 func (c *Client) filter(form url.Values) (*Connection, error) {
     req, err := http.NewRequest("POST", FilterUrl, strings.NewReader(form.Encode()))
     if err != nil {
