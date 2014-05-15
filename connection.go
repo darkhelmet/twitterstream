@@ -30,7 +30,9 @@ func (c *Connection) Close() error {
 
 func (c *Connection) Next() (*Tweet, error) {
     var tweet Tweet
-    c.conn.SetReadDeadline(time.Now().Add(c.timeout))
+    if c.timeout != 0 {
+        c.conn.SetReadDeadline(time.Now().Add(c.timeout))
+    }
     if err := c.decoder.Decode(&tweet); err != nil {
         return nil, err
     }
