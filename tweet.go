@@ -96,6 +96,9 @@ type Tweet struct {
     // If the represented Tweet is a reply, this field will contain the string representation of the original Tweet's author ID.
     InReplyToUserIdStr *string `json:"in_reply_to_user_id_str"`
 
+    // When present, indicates a BCP 47 language identifier corresponding to the machine-detected language of the Tweet text, or “und” if no language could be detected. 
+    Lang *string `json:"lang"`
+
     // When present, indicates that the tweet is associated (but not necessarily originating from) a Place.
     Place *Place `json:"place"`
 
