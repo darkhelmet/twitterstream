@@ -56,6 +56,11 @@ func (c *Client) Locations(p1 Point, p2 Point) (*Connection, error) {
 	return c.filter(form)
 }
 
+func (c *Client) Language(language string) (*Connection, error) {
+	lang := url.Values{"language": language}
+	return c.filter(lang)
+}
+
 func (c *Client) Sample() (*Connection, error) {
 	req, err := http.NewRequest("GET", "https://stream.twitter.com/1.1/statuses/sample.json", nil)
 	if err != nil {
