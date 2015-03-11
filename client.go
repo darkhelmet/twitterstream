@@ -57,7 +57,7 @@ func (c *Client) Locations(p1 Point, p2 Point) (*Connection, error) {
 }
 
 func (c *Client) Language(language string) (*Connection, error) {
-	lang := url.Values{"language": language}
+	lang := url.Values{"language": []string{language}}
 	return c.filter(lang)
 }
 
