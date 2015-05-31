@@ -43,22 +43,22 @@ func NewClientTimeout(consumerKey, consumerSecret, accessToken, accessSecret str
 
 func (c *Client) Track(keywords ...string) (*Connection, error) {
 	form := url.Values{"track": {strings.Join(keywords, ",")}}
-	return c.filter(form)
+	return c.Filter(form)
 }
 
 func (c *Client) Follow(userIds ...string) (*Connection, error) {
 	form := url.Values{"follow": {strings.Join(userIds, ",")}}
-	return c.filter(form)
+	return c.Filter(form)
 }
 
 func (c *Client) Locations(p1 Point, p2 Point) (*Connection, error) {
 	form := url.Values{"locations": {fmt.Sprintf("%f,%f,%f,%f", p1.Long, p1.Lat, p2.Long, p2.Lat)}}
-	return c.filter(form)
+	return c.Filter(form)
 }
 
 func (c *Client) Language(language string) (*Connection, error) {
 	lang := url.Values{"language": []string{language}}
-	return c.filter(lang)
+	return c.Filter(lang)
 }
 
 func (c *Client) Sample() (*Connection, error) {
@@ -86,7 +86,7 @@ func (c *Client) Sample() (*Connection, error) {
 	return conn, nil
 }
 
-func (c *Client) filter(form url.Values) (*Connection, error) {
+func (c *Client) Filter(form url.Values) (*Connection, error) {
 	req, err := http.NewRequest("POST", FilterUrl, strings.NewReader(form.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("twitterstream: creating filter request failed: %s", err)
