@@ -1,6 +1,8 @@
 # twitterstream
 
-Twitter streaming API for Go. [Documentation](http://go.pkgdoc.org/github.com/darkhelmet/twitterstream)
+[![GoDoc](https://godoc.org/github.com/darkhelmet/twitterstream?status.png)](https://godoc.org/github.com/darkhelmet/twitterstream)
+
+Twitter streaming API for Go.
 
 See `twimgd.go` for an example that downloads images given keywords.
 
